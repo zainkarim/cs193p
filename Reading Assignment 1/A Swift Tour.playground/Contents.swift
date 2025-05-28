@@ -311,3 +311,4 @@ let deck = createDeck()
 for card in deck.prefix(52) {
     print(card.simpleDescription())
 }
+
