@@ -8,12 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    // create emojis array
+    let emojis: [String] = ["😎", "🤓", "😆", "😋"]
+    
     var body: some View {
         HStack {
-            CardView(isFaceUp: true)
-            CardView()
-            CardView()
-            CardView()
+            // Can't do for loops in @ViewBuilder! How would we approach this?
+            // Use a ForEach struct: "give me the view you want for each of these things."
+            ForEach(emojis.indices, id: \.self) { index in
+                CardView(content: emojis[index], isFaceUp: true)
+            }
         }
         .padding()
         .foregroundColor(.orange) // Percolates down to CardView
@@ -21,8 +25,10 @@ struct ContentView: View {
 }
 
 struct CardView: View {
-    @State var isFaceUp = false
+    let content: String
+    @State var isFaceUp = true
     // var isFaceUp: Bool = false // vars in structs MUST have values
+    
     var body: some View {
         ZStack {
             // we can make local variables in @ViewBuilder
@@ -33,7 +39,7 @@ struct CardView: View {
                 base.foregroundColor(.white)
                 base.strokeBorder(lineWidth: 2)
                     .foregroundColor(.gray) // Specified stroke: otherwise would be orange
-                Text("😎").font(.largeTitle)
+                Text(content).font(.largeTitle)
             } else {
                 base
             }
