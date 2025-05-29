@@ -9,18 +9,61 @@ import SwiftUI
 
 struct ContentView: View {
     // create emojis array
-    let emojis: [String] = ["😎", "🤓", "😆", "😋"]
+    let emojis: [String] = ["😎", "🤓", "😆", "😋", "🥹", "🥸", "🥳", "🤩", "🤯"]
+    // create card count variable to change how many cards are visisble
+    @State var cardCount: Int = 4
     
     var body: some View {
+        VStack {
+            cards
+            cardCountAdjusters
+        }
+        .padding()
+    }
+    
+    var cards: some View {
         HStack {
             // Can't do for loops in @ViewBuilder! How would we approach this?
             // Use a ForEach struct: "give me the view you want for each of these things."
-            ForEach(emojis.indices, id: \.self) { index in
+            ForEach(0..<cardCount, id: \.self) { index in
                 CardView(content: emojis[index], isFaceUp: true)
             }
         }
-        .padding()
-        .foregroundColor(.orange) // Percolates down to CardView
+        .foregroundColor(.orange)
+    }
+    
+    var cardCountAdjusters: some View {
+        HStack{
+            cardRemover
+            Spacer()
+            cardAdder
+        }
+        .imageScale(.large)
+        .font(.largeTitle)
+    }
+    
+    var cardRemover: some View {
+        // Button to remove cards
+        Button(action: {
+            if(cardCount > 1) {
+                cardCount -= 1
+                print("Removed card")
+            }
+        }, label: {
+            Image(systemName: "rectangle.stack.badge.minus")
+        })
+    }
+    
+    var cardAdder: some View {
+        // Button to add cards
+        Button(action: {
+            if(cardCount < emojis.count) {
+                cardCount += 1
+                print("Added card")
+            }
+        }, label: {
+            Image(systemName: "rectangle.stack.badge.plus")
+        })
     }
 }
 
