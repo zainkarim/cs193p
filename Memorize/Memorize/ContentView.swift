@@ -15,18 +15,23 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            cards
+            ScrollView{
+                cards
+            }
+            Spacer()
             cardCountAdjusters
         }
         .padding()
     }
     
     var cards: some View {
-        HStack {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120)), GridItem()]) {
             // Can't do for loops in @ViewBuilder! How would we approach this?
             // Use a ForEach struct: "give me the view you want for each of these things."
             ForEach(0..<cardCount, id: \.self) { index in
-                CardView(content: emojis[index], isFaceUp: true)
+                CardView(content: emojis[index])
+                    .aspectRatio(2/3, contentMode: .fit)
+                
             }
         }
         .foregroundColor(.orange)
@@ -42,28 +47,23 @@ struct ContentView: View {
         .font(.largeTitle)
     }
     
-    var cardRemover: some View {
-        // Button to remove cards
+    // Create functions to add and remove cards
+    func cardCountAdjuster(by offset : Int, symbol: String) -> some View {
         Button(action: {
-            if(cardCount > 1) {
-                cardCount -= 1
-                print("Removed card")
-            }
+            cardCount += offset
+            print("Removed card")
         }, label: {
-            Image(systemName: "rectangle.stack.badge.minus")
+            Image(systemName: symbol)
         })
+        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
     }
     
+    // Calling the cardCountAdjuster function
+    var cardRemover: some View {
+        cardCountAdjuster(by: -1, symbol: "rectangle.stack.badge.minus")
+    }
     var cardAdder: some View {
-        // Button to add cards
-        Button(action: {
-            if(cardCount < emojis.count) {
-                cardCount += 1
-                print("Added card")
-            }
-        }, label: {
-            Image(systemName: "rectangle.stack.badge.plus")
-        })
+        cardCountAdjuster(by: 1, symbol: "rectangle.stack.badge.plus")
     }
 }
 
@@ -78,14 +78,16 @@ struct CardView: View {
             // let base: RoundedRectangle = RoundedRectangle(cornerRadius: 12)
             // type inference
             let base = RoundedRectangle(cornerRadius: 12)
-            if isFaceUp{
+            // Make emojis transparent when facedown
+            Group {
                 base.foregroundColor(.white)
                 base.strokeBorder(lineWidth: 2)
                     .foregroundColor(.gray) // Specified stroke: otherwise would be orange
                 Text(content).font(.largeTitle)
-            } else {
-                base
             }
+            .opacity(isFaceUp ? 1 : 0)
+            base.fill().opacity(isFaceUp ? 0 : 1)
+            
         } // View Modifier for when user taps on card
         .onTapGesture {
             // This is normal code! Not a @ViewBuilder
