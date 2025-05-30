@@ -9,23 +9,35 @@ import SwiftUI
 
 struct ContentView: View {
     // create emojis array
-    let emojis: [String] = ["😎", "🤓", "😆", "😋", "🥹", "🥸", "🥳", "🤩", "🤯"]
+    @State var emojis: Array<String> = []
+    
+    // create themes
+    var faces: [String] = ["😎", "🤓", "😆", "🥳", "🤩", "🤯", "😎", "🤓", "😆", "🥳", "🤩", "🤯"]
+    var vehicles: [String] = ["🚀", "🚕", "🛸", "🛵", "🏎️", "✈️", "🚀", "🚕", "🛸", "🛵", "🏎️", "✈️"]
+    var objects: [String] = ["🍎", "📸", "🎸", "💻", "🎨", "🍰", "🍎", "📸", "🎸", "💻", "🎨", "🍰"]
+
     // create card count variable to change how many cards are visisble
-    @State var cardCount: Int = 4
+    @State var cardCount: Int = 0
     
     var body: some View {
         VStack {
+            title
             ScrollView{
                 cards
             }
             Spacer()
-            cardCountAdjusters
+            /* cardCountAdjuster */
+            themePickers
         }
         .padding()
     }
+
+    var title: some View {
+        Text("Memorize!").font(.largeTitle)
+    }
     
     var cards: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120)), GridItem()]) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))]) {
             // Can't do for loops in @ViewBuilder! How would we approach this?
             // Use a ForEach struct: "give me the view you want for each of these things."
             ForEach(0..<cardCount, id: \.self) { index in
@@ -37,6 +49,44 @@ struct ContentView: View {
         .foregroundColor(.orange)
     }
     
+    var themePickers: some View {
+        HStack{
+            Spacer()
+            facesTheme
+            Spacer()
+            vehiclesTheme
+            Spacer()
+            objectsTheme
+            Spacer()
+        }
+        .font(.title2)
+    }
+    
+    func themePicker(theme: Array<String>, symbol: String, label: String) -> some View {
+        Button(action: {
+            emojis = theme.shuffled()
+            cardCount = emojis.count
+        }, label: {
+            VStack{
+                Image(systemName: symbol)
+                    .imageScale(.large)
+                Text(label)
+                    .font(.body)
+            }
+        })
+    }
+    
+    var facesTheme: some View {
+        themePicker(theme: faces, symbol: "face.smiling", label: "Faces")
+    }
+    var vehiclesTheme: some View {
+        themePicker(theme: vehicles, symbol: "car", label: "Vehicles")
+    }
+    var objectsTheme: some View {
+        themePicker(theme: objects, symbol: "cube", label: "Objects")
+    }
+    
+    /*
     var cardCountAdjusters: some View {
         HStack{
             cardRemover
@@ -46,30 +96,32 @@ struct ContentView: View {
         .imageScale(.large)
         .font(.largeTitle)
     }
-    
-    // Create functions to add and remove cards
-    func cardCountAdjuster(by offset : Int, symbol: String) -> some View {
-        Button(action: {
-            cardCount += offset
-            print("Removed card")
-        }, label: {
-            Image(systemName: symbol)
-        })
-        .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
-    }
-    
-    // Calling the cardCountAdjuster function
-    var cardRemover: some View {
-        cardCountAdjuster(by: -1, symbol: "rectangle.stack.badge.minus")
-    }
-    var cardAdder: some View {
-        cardCountAdjuster(by: 1, symbol: "rectangle.stack.badge.plus")
-    }
+    */
+    /*
+        // Create functions to add and remove cards
+        func cardCountAdjuster(by offset : Int, symbol: String) -> some View {
+            Button(action: {
+                cardCount += offset
+                print("Removed card")
+            }, label: {
+                Image(systemName: symbol)
+            })
+            .disabled(cardCount + offset < 1 || cardCount + offset > emojis.count)
+        }
+        
+        // Calling the cardCountAdjuster function
+        var cardRemover: some View {
+            cardCountAdjuster(by: -1, symbol: "rectangle.stack.badge.minus")
+        }
+        var cardAdder: some View {
+            cardCountAdjuster(by: 1, symbol: "rectangle.stack.badge.plus")
+        }
+    */
 }
 
 struct CardView: View {
     let content: String
-    @State var isFaceUp = true
+    @State var isFaceUp = false
     // var isFaceUp: Bool = false // vars in structs MUST have values
     
     var body: some View {
